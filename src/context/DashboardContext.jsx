@@ -12,6 +12,7 @@ export const DashboardProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -70,9 +71,20 @@ export const DashboardProvider = ({ children }) => {
     }
   };
 
+  const fetchServices = async () => {
+    try {
+      const response = await axiosInstance.get('/services');
+      if (response.data.status === 'success') {
+        setServices(response.data.data.services);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const refreshData = async () => {
     setLoading(true);
-    await Promise.all([fetchProjects(), fetchClients(), fetchNotifications(), fetchTestimonials(), fetchInvoices()]);
+    await Promise.all([fetchProjects(), fetchClients(), fetchNotifications(), fetchTestimonials(), fetchInvoices(), fetchServices()]);
     setLoading(false);
   };
 
@@ -95,21 +107,24 @@ export const DashboardProvider = ({ children }) => {
       totalRevenue: `$${totalRevenue.toLocaleString()}`,
       activeProjectsCount: activeProjects,
       totalClientsCount: clients.length,
+      totalServicesCount: services.length,
       successRate: `${successRate.toFixed(1)}%`,
       projectsLoaded: projects.length,
       unreadNotificationsCount
     };
-  }, [projects, clients, notifications]);
+  }, [projects, clients, notifications, services]);
 
   const value = {
     projects,
     clients,
     notifications,
     testimonials,
+    services,
     stats,
     loading,
     error,
     refreshData,
+    fetchServices,
     fetchNotifications,
     markNotificationRead: async (id) => {
       await axiosInstance.patch(`/notifications/${id}`);
@@ -194,6 +209,36 @@ export const DashboardProvider = ({ children }) => {
         toast.success("Testimonial deleted successfully!");
       } catch (err) {
         toast.error(err.response?.data?.message || "Failed to delete testimonial");
+        throw err;
+      }
+    },
+    addService: async (data) => {
+      try {
+        await axiosInstance.post('/services', data);
+        await refreshData();
+        toast.success("Service added successfully!");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to add service");
+        throw err;
+      }
+    },
+    updateService: async (id, data) => {
+      try {
+        await axiosInstance.patch(`/services/${id}`, data);
+        await refreshData();
+        toast.success("Service updated successfully!");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to update service");
+        throw err;
+      }
+    },
+    delService: async (id) => {
+      try {
+        await axiosInstance.delete(`/services/${id}`);
+        await refreshData();
+        toast.success("Service deleted successfully!");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to delete service");
         throw err;
       }
     },

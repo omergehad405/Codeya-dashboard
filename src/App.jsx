@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Users from './pages/Users';
 import Projects from './pages/Projects';
 import Testimonials from './pages/Testimonials';
+import Services from './pages/Services';
 import ActivityHistory from './pages/ActivityHistory';
 import Invoices from './pages/Invoices';
 import ScrollToTop from './components/ScrollToTop';
@@ -20,6 +21,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="users" element={<Users />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="services" element={<Services />} />
           <Route path="testimonials" element={<Testimonials />} />
           <Route path="activity" element={<ActivityHistory />} />
           <Route path="invoices" element={<Invoices />} />

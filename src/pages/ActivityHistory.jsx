@@ -9,7 +9,8 @@ import {
   CheckCircle2, 
   Trash2,
   Calendar,
-  ChevronRight
+  ChevronRight,
+  Layers
 } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 import { format } from 'date-fns';
@@ -36,6 +37,7 @@ const ActivityHistory = () => {
     switch(type) {
       case 'email': return <Mail className="w-5 h-5 text-brand-neon" />;
       case 'project': return <FolderKanban className="w-5 h-5 text-brand-deep" />;
+      case 'service': return <Layers className="w-5 h-5 text-brand-deep" />;
       default: return <Info className="w-5 h-5 text-[#6b8a78]" />;
     }
   };
@@ -73,7 +75,7 @@ const ActivityHistory = () => {
         </div>
         
         <div className="flex bg-white border border-brand-border p-1.5 rounded-2xl gap-1">
-          {['all', 'project', 'email', 'system'].map((type) => (
+          {['all', 'project', 'service', 'email', 'system'].map((type) => (
             <button
               key={type}
               onClick={() => setFilter(type)}

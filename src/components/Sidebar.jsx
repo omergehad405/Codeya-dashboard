@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, FolderKanban, History, Code2, Receipt, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, FolderKanban, History, Code2, Receipt, MessageSquare, Layers } from 'lucide-react';
 
 const Sidebar = () => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/' },
     { icon: Users, label: 'Clients', path: '/users' },
     { icon: FolderKanban, label: 'Projects', path: '/projects' },
+    { icon: Layers, label: 'Services', path: '/services' },
     { icon: MessageSquare, label: 'Testimonials', path: '/testimonials' },
     { icon: Receipt, label: 'Invoices', path: '/invoices' },
     { icon: History, label: 'Activity History', path: '/activity' },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Mail, FolderKanban, Info, CheckCircle2, Clock, Trash2 } from 'lucide-react';
+import { Bell, Mail, FolderKanban, Info, CheckCircle2, Clock, Trash2, Layers } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ const NotificationDropdown = ({ notifications, onMarkRead, onMarkAllRead, onDele
       <motion.div
         initial={{ opacity: 0, y: 10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+        exit={{ opacity: 0, scale: 0.95 }}
         className="absolute right-0 mt-4 w-96 bg-white/90 backdrop-blur-xl border border-brand-border rounded-3xl shadow-2xl z-50 overflow-hidden"
       >
         <div className="p-6 border-b border-brand-border flex items-center justify-between bg-brand-light/30">
@@ -49,11 +49,13 @@ const NotificationDropdown = ({ notifications, onMarkRead, onMarkAllRead, onDele
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 
                     ${notif.type === 'email' ? 'bg-brand-neon/15 text-brand-neon' : 
-                      notif.type === 'project' ? 'bg-brand-deep/15 text-brand-deep' : 'bg-brand-light text-[#6b8a78]'}
+                      notif.type === 'project' ? 'bg-brand-deep/15 text-brand-deep' : 
+                      notif.type === 'service' ? 'bg-brand-neon/20 text-brand-deep' : 'bg-brand-light text-[#6b8a78]'}
                   `}>
                     {notif.type === 'email' && <Mail className="w-5 h-5" />}
                     {notif.type === 'project' && <FolderKanban className="w-5 h-5" />}
-                    {notif.type === 'system' && <Info className="w-5 h-5" />}
+                    {notif.type === 'service' && <Layers className="w-5 h-5" />}
+                    {(!['email', 'project', 'service'].includes(notif.type)) && <Info className="w-5 h-5" />}
                   </div>
                   
                   <div className="flex-1 space-y-1">
