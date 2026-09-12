@@ -12,17 +12,17 @@ import {
   Target,
   CheckCircle2,
   ListPlus,
-  Sparkles,
-  Tag,
-  ArrowRight
+  Tag
 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { useServices, useDeleteService } from '../hooks/useServicesQuery';
 import AddServiceModal from '../components/modals/AddServiceModal';
 import EditServiceModal from '../components/modals/EditServiceModal';
 import DeleteConfirmModal from '../components/modals/DeleteConfirmModal';
 
 const Services = () => {
-  const { services, loading, delService } = useDashboard();
+  const { data: services = [], isLoading: loading } = useServices();
+  const deleteServiceMutation = useDeleteService();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
@@ -61,7 +61,7 @@ const Services = () => {
 
   const handleConfirmDelete = async () => {
     if (selectedService?._id) {
-      await delService(selectedService._id);
+      await deleteServiceMutation.mutateAsync(selectedService._id);
       setIsDeleteModalOpen(false);
       setSelectedService(null);
     }

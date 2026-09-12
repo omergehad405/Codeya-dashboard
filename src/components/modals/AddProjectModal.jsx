@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FolderKanban, DollarSign, Activity, Loader2, Plus, Users as UsersIcon, FileText, Globe, Percent } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useClients } from '../../hooks/useClientsQuery';
+import { useCreateProject } from '../../hooks/useProjectsQuery';
 
 const AddProjectModal = ({ isOpen, onClose }) => {
-  const { addProject, clients } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const { data: clients = [] } = useClients();
+  const createProjectMutation = useCreateProject();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -44,7 +45,6 @@ const AddProjectModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
       const dbData = new FormData();
       dbData.append('name', formData.name);
@@ -59,15 +59,15 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         dbData.append('image', formData.image);
       }
       
-      await addProject(dbData, true);
+      await createProjectMutation.mutateAsync({ data: dbData, isFormData: true });
       onClose();
       setFormData({ name: '', description: '', link: '', client: '', price: '', status: 'in progress', progress: 0, category: [], image: null });
     } catch (error) {
       console.error('Error adding project:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = createProjectMutation.isPending;
 
   return (
     <AnimatePresence>

@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Mail, Phone, Loader2, Plus } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useCreateClient } from '../../hooks/useClientsQuery';
 
 const AddClientModal = ({ isOpen, onClose }) => {
-  const { addClient } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const createClientMutation = useCreateClient();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,17 +13,16 @@ const AddClientModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
-      await addClient(formData);
+      await createClientMutation.mutateAsync(formData);
       onClose();
       setFormData({ name: '', email: '', phone: '' });
     } catch (error) {
       console.error('Error adding client:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = createClientMutation.isPending;
 
   return (
     <AnimatePresence>

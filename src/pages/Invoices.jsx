@@ -4,7 +4,8 @@ import {
   FileText, DollarSign, Wallet, TrendingUp, Search,
   Loader2, ArrowUpRight, ArrowDownRight, Plus, X, Trash2, Link as LinkIcon, TrendingDown
 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { useProjects } from '../hooks/useProjectsQuery';
+import { useInvoices, useCreateInvoice, useDeleteInvoice } from '../hooks/useInvoicesQuery';
 
 const CATEGORIES = ['Development', 'Design', 'Hosting', 'Domain', 'Maintenance', 'Consultation', 'Other'];
 
@@ -27,13 +28,19 @@ const getCategoryStyle = (category, invoiceType, rowType) => {
 };
 
 const Invoices = () => {
-  const { projects, invoices, loading, addInvoice, delInvoice } = useDashboard();
+  const { data: projects = [], isLoading: isProjectsLoading } = useProjects();
+  const { data: invoices = [], isLoading: isInvoicesLoading } = useInvoices();
+  const createInvoiceMutation = useCreateInvoice();
+  const deleteInvoiceMutation = useDeleteInvoice();
+
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ description: '', price: '', category: 'Development', invoiceType: 'income' });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [tableSearch, setTableSearch] = useState('');
+
+  const loading = isProjectsLoading || isInvoicesLoading;
 
   const resetForm = () => {
     setShowForm(false);
@@ -50,7 +57,7 @@ const Invoices = () => {
 
     projects.forEach(p => {
       const price = Number(p.price) || 0;
-      if (p.status.toLowerCase() === 'completed') {
+      if (p.status?.toLowerCase() === 'completed') {
         completed += price;
         items.push({ _id: p._id, name: p.name, rowType: 'project', invoiceType: 'income', client: p.client?.name || 'Unknown', date: p.updatedAt || p.createdAt, price, category: null });
       } else {
@@ -86,7 +93,7 @@ const Invoices = () => {
   const filteredProjects = useMemo(() => {
     if (!searchQuery) return projects;
     return projects.filter(p =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (p.client?.name && p.client.name.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }, [projects, searchQuery]);
@@ -94,8 +101,8 @@ const Invoices = () => {
   const filteredPayments = useMemo(() => {
     if (!tableSearch) return allPayments;
     return allPayments.filter(p =>
-      p.name.toLowerCase().includes(tableSearch.toLowerCase()) ||
-      p.client.toLowerCase().includes(tableSearch.toLowerCase()) ||
+      p.name?.toLowerCase().includes(tableSearch.toLowerCase()) ||
+      p.client?.toLowerCase().includes(tableSearch.toLowerCase()) ||
       (p.project && p.project.toLowerCase().includes(tableSearch.toLowerCase()))
     );
   }, [allPayments, tableSearch]);
@@ -104,7 +111,7 @@ const Invoices = () => {
     e.preventDefault();
     if (!formData.description || !formData.price) return;
     try {
-      await addInvoice({
+      await createInvoiceMutation.mutateAsync({
         description: formData.description,
         price: Number(formData.price),
         category: formData.category,
@@ -236,7 +243,7 @@ const Invoices = () => {
                       </td>
                       <td className="px-6 py-5 text-center">
                         {payment.rowType === 'invoice' ? (
-                          <button onClick={() => { if (window.confirm('Delete this billing record?')) delInvoice(payment._id); }}
+                          <button onClick={() => { if (window.confirm('Delete this billing record?')) deleteInvoiceMutation.mutate(payment._id); }}
                             className="p-2 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all">
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -356,6 +363,7 @@ const Invoices = () => {
                     Cancel
                   </button>
                   <button type="submit"
+                    disabled={createInvoiceMutation.isPending}
                     className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${formData.invoiceType === 'expense' ? 'bg-red-500 hover:bg-red-600 text-white' : 'btn-primary'}`}>
                     {formData.invoiceType === 'expense' ? 'Save Expense' : 'Save Income'}
                   </button>

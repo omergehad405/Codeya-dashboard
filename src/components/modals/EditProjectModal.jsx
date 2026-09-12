@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FolderKanban, DollarSign, Activity, Loader2, Save, Users as UsersIcon, FileText, Globe, Percent } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useClients } from '../../hooks/useClientsQuery';
+import { useUpdateProject } from '../../hooks/useProjectsQuery';
 
 const EditProjectModal = ({ isOpen, onClose, projectData }) => {
-  const { updateProject, clients } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const { data: clients = [] } = useClients();
+  const updateProjectMutation = useUpdateProject();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -60,7 +61,6 @@ const EditProjectModal = ({ isOpen, onClose, projectData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
       const dbData = new FormData();
       dbData.append('name', formData.name);
@@ -75,14 +75,14 @@ const EditProjectModal = ({ isOpen, onClose, projectData }) => {
         dbData.append('image', formData.image);
       }
       
-      await updateProject(projectData._id, dbData, true);
+      await updateProjectMutation.mutateAsync({ id: projectData._id, data: dbData, isFormData: true });
       onClose();
     } catch (error) {
       console.error('Error updating project:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = updateProjectMutation.isPending;
 
   return (
     <AnimatePresence>

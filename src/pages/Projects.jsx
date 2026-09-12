@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FolderKanban, Plus, Search, ExternalLink, MoreVertical, LayoutGrid, List, Loader2, Edit, Trash2 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { useProjects, useDeleteProject } from '../hooks/useProjectsQuery';
 import AddProjectModal from '../components/modals/AddProjectModal';
 import EditProjectModal from '../components/modals/EditProjectModal';
 
 const STATUS_FILTERS = ['All', 'active', 'in progress', 'completed', 'stopped'];
 
 const Projects = () => {
-  const { projects, loading, delProject } = useDashboard();
+  const { data: projects = [], isLoading: loading } = useProjects();
+  const deleteProjectMutation = useDeleteProject();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
@@ -20,7 +22,7 @@ const Projects = () => {
   const handleDelete = async (id) => {
     setActiveDropdown(null);
     if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
-      await delProject(id);
+      await deleteProjectMutation.mutateAsync(id);
     }
   };
 

@@ -2,26 +2,23 @@ import React, { useState } from 'react';
 import { 
   Clock, 
   Search, 
-  Filter, 
   Mail, 
   FolderKanban, 
   Info, 
   CheckCircle2, 
   Trash2,
   Calendar,
-  ChevronRight,
-  Layers
+  Layers,
+  Loader2
 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '../hooks/useNotificationsQuery';
 import { format } from 'date-fns';
 
 const ActivityHistory = () => {
-  const { 
-    notifications, 
-    markNotificationRead, 
-    markAllNotificationsRead, 
-    deleteNotification 
-  } = useDashboard();
+  const { data: notifications = [], isLoading: loading } = useNotifications();
+  const markNotificationReadMutation = useMarkNotificationRead();
+  const markAllNotificationsReadMutation = useMarkAllNotificationsRead();
+  const deleteNotificationMutation = useDeleteNotification();
   
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +39,14 @@ const ActivityHistory = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="h-full w-full min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-brand-neon animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-fadeIn">
       {/* Header */}
@@ -52,7 +57,7 @@ const ActivityHistory = () => {
         </div>
         <div className="flex gap-3">
           <button 
-            onClick={markAllNotificationsRead}
+            onClick={() => markAllNotificationsReadMutation.mutate()}
             className="flex items-center gap-2 px-5 py-2.5 bg-white border border-brand-border rounded-xl text-sm font-bold text-brand-neon hover:bg-brand-neon hover:text-white transition-all shadow-sm"
           >
             <CheckCircle2 className="w-4 h-4" />
@@ -140,7 +145,7 @@ const ActivityHistory = () => {
                 <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   {!notif.isRead && (
                     <button 
-                      onClick={() => markNotificationRead(notif._id)}
+                      onClick={() => markNotificationReadMutation.mutate(notif._id)}
                       className="p-2 bg-brand-neon/10 text-brand-neon rounded-xl hover:bg-brand-neon hover:text-white transition-all"
                       title="Mark as read"
                     >
@@ -148,7 +153,7 @@ const ActivityHistory = () => {
                     </button>
                   )}
                   <button 
-                    onClick={() => deleteNotification(notif._id)}
+                    onClick={() => deleteNotificationMutation.mutate(notif._id)}
                     className="p-2 bg-red-50 text-red-400 rounded-xl hover:bg-red-400 hover:text-white transition-all"
                     title="Delete record"
                   >

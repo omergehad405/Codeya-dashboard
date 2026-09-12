@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Layers, Plus, Trash2, Loader2, Sparkles, CheckCircle2, Target, ListPlus } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useUpdateService } from '../../hooks/useServicesQuery';
 
 const DEFAULT_CATEGORIES = [
   'Web Development',
@@ -13,8 +13,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const EditServiceModal = ({ isOpen, onClose, service }) => {
-  const { updateService } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const updateServiceMutation = useUpdateService();
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -71,7 +70,6 @@ const EditServiceModal = ({ isOpen, onClose, service }) => {
     e.preventDefault();
     if (!service?._id) return;
 
-    setLoading(true);
     try {
       const payload = {
         title: formData.title.trim(),
@@ -82,14 +80,14 @@ const EditServiceModal = ({ isOpen, onClose, service }) => {
         canInclude: formData.canInclude.map(s => s.trim()).filter(Boolean)
       };
 
-      await updateService(service._id, payload);
+      await updateServiceMutation.mutateAsync({ id: service._id, data: payload });
       onClose();
     } catch (error) {
       console.error('Error updating service:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = updateServiceMutation.isPending;
 
   return (
     <AnimatePresence>

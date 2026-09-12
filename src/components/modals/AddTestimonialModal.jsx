@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Plus, MessageSquare, User, Star } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useCreateTestimonial } from '../../hooks/useTestimonialsQuery';
 
 const AddTestimonialModal = ({ isOpen, onClose }) => {
-  const { addTestimonial } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const createTestimonialMutation = useCreateTestimonial();
   const [formData, setFormData] = useState({
     clientName: '',
     role: '',
@@ -16,7 +15,6 @@ const AddTestimonialModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
       const dbData = new FormData();
       dbData.append('clientName', formData.clientName);
@@ -27,15 +25,15 @@ const AddTestimonialModal = ({ isOpen, onClose }) => {
         dbData.append('image', formData.image);
       }
       
-      await addTestimonial(dbData, true);
+      await createTestimonialMutation.mutateAsync({ data: dbData, isFormData: true });
       onClose();
       setFormData({ clientName: '', role: '', message: '', rating: 5, image: null });
     } catch (error) {
       console.error('Error adding testimonial:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = createTestimonialMutation.isPending;
 
   return (
     <AnimatePresence>

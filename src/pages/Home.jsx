@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, TrendingUp, Users, FolderKanban, Activity, Loader2 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { ArrowUpRight, TrendingUp, Activity, Loader2 } from 'lucide-react';
+import { useDashboardStats } from '../hooks/useDashboardStats';
 
 const Home = () => {
-  const { stats, projects, loading } = useDashboard();
+  const { stats, projects, isLoading } = useDashboardStats();
 
   const STATS_CARDS = [
     { id: 1, label: "Total Revenue", value: stats.totalRevenue, trend: "+12.5%", color: "brand-neon" },
@@ -13,7 +13,7 @@ const Home = () => {
     { id: 4, label: "Success Rate", value: stats.successRate, trend: "+0.4%", color: "brand-deep" },
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="h-full w-full flex items-center justify-center">
         <Loader2 className="w-12 h-12 text-brand-neon animate-spin" />
@@ -110,7 +110,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Activity Feed placeholder */}
+        {/* Live Metrics */}
         <div className="dashboard-card">
           <div className="flex items-center gap-2 mb-6">
             <Activity className="w-5 h-5 text-brand-neon" />

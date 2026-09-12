@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Search, Bell, Menu, Sun } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
-import { useDashboard } from '../context/DashboardContext';
+import { Search, Bell, Sun } from 'lucide-react';
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '../hooks/useNotificationsQuery';
+import { useDashboardStats } from '../hooks/useDashboardStats';
 import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
-  const { stats, notifications, markNotificationRead, markAllNotificationsRead, deleteNotification } = useDashboard();
+  const { stats } = useDashboardStats();
+  const { data: notifications = [] } = useNotifications();
+  const markNotificationReadMutation = useMarkNotificationRead();
+  const markAllNotificationsReadMutation = useMarkAllNotificationsRead();
+  const deleteNotificationMutation = useDeleteNotification();
+
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
@@ -36,9 +41,9 @@ const Navbar = () => {
           {showNotifications && (
             <NotificationDropdown 
               notifications={notifications}
-              onMarkRead={markNotificationRead}
-              onMarkAllRead={markAllNotificationsRead}
-              onDelete={deleteNotification}
+              onMarkRead={(id) => markNotificationReadMutation.mutate(id)}
+              onMarkAllRead={() => markAllNotificationsReadMutation.mutate()}
+              onDelete={(id) => deleteNotificationMutation.mutate(id)}
               onClose={() => setShowNotifications(false)}
             />
           )}

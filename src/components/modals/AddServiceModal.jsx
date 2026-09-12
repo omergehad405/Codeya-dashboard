@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Layers, Plus, Trash2, Loader2, Sparkles, CheckCircle2, Target, ListPlus } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { useCreateService } from '../../hooks/useServicesQuery';
 
 const DEFAULT_CATEGORIES = [
   'Web Development',
@@ -13,8 +13,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const AddServiceModal = ({ isOpen, onClose }) => {
-  const { addService } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const createServiceMutation = useCreateService();
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -52,7 +51,6 @@ const AddServiceModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
       // Filter out empty lines
       const payload = {
@@ -64,7 +62,7 @@ const AddServiceModal = ({ isOpen, onClose }) => {
         canInclude: formData.canInclude.map(s => s.trim()).filter(Boolean)
       };
 
-      await addService(payload);
+      await createServiceMutation.mutateAsync(payload);
       onClose();
       setFormData({
         title: '',
@@ -76,10 +74,10 @@ const AddServiceModal = ({ isOpen, onClose }) => {
       });
     } catch (error) {
       console.error('Error adding service:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = createServiceMutation.isPending;
 
   return (
     <AnimatePresence>

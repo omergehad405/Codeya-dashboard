@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, MessageSquare, User, Star } from 'lucide-react';
-import { useDashboard } from '../../context/DashboardContext';
+import { X, Loader2, MessageSquare, User, Star, Save } from 'lucide-react';
+import { useUpdateTestimonial } from '../../hooks/useTestimonialsQuery';
 
 const EditTestimonialModal = ({ isOpen, onClose, testimonialData }) => {
-  const { updateTestimonial } = useDashboard();
-  const [loading, setLoading] = useState(false);
+  const updateTestimonialMutation = useUpdateTestimonial();
   const [formData, setFormData] = useState({
     clientName: '',
     role: '',
@@ -28,7 +27,6 @@ const EditTestimonialModal = ({ isOpen, onClose, testimonialData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
       const dbData = new FormData();
       dbData.append('clientName', formData.clientName);
@@ -39,14 +37,14 @@ const EditTestimonialModal = ({ isOpen, onClose, testimonialData }) => {
         dbData.append('image', formData.image);
       }
       
-      await updateTestimonial(testimonialData._id, dbData, true);
+      await updateTestimonialMutation.mutateAsync({ id: testimonialData._id, data: dbData, isFormData: true });
       onClose();
     } catch (error) {
       console.error('Error updating testimonial:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = updateTestimonialMutation.isPending;
 
   return (
     <AnimatePresence>
@@ -169,7 +167,10 @@ const EditTestimonialModal = ({ isOpen, onClose, testimonialData }) => {
                   {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    "Save Changes"
+                    <>
+                      <Save className="w-4 h-4 group-hover:scale-105 transition-transform" />
+                      Save Changes
+                    </>
                   )}
                 </button>
               </div>

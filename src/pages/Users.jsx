@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, MoreVertical, Plus, Mail, ShieldCheck, Loader2 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { useClients } from '../hooks/useClientsQuery';
 import AddClientModal from '../components/modals/AddClientModal';
 
 const Users = () => {
-  const { clients, loading } = useDashboard();
+  const { data: clients = [], isLoading: loading } = useClients();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (loading) {
@@ -126,4 +126,3 @@ const Users = () => {
 };
 
 export default Users;
-

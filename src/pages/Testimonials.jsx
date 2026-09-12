@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, MessageSquare, Edit2, Trash2, Calendar, Star } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import { Plus, Search, MessageSquare, Edit2, Trash2, Calendar, Star, Loader2 } from 'lucide-react';
+import { useTestimonials, useDeleteTestimonial } from '../hooks/useTestimonialsQuery';
 import AddTestimonialModal from '../components/modals/AddTestimonialModal';
 import EditTestimonialModal from '../components/modals/EditTestimonialModal';
 import DeleteConfirmModal from '../components/modals/DeleteConfirmModal';
 
 const Testimonials = () => {
-  const { testimonials, delTestimonial } = useDashboard();
+  const { data: testimonials = [], isLoading: loading } = useTestimonials();
+  const deleteTestimonialMutation = useDeleteTestimonial();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,11 +24,19 @@ const Testimonials = () => {
 
   const handleDelete = async () => {
     if (selectedTestimonial) {
-      await delTestimonial(selectedTestimonial._id);
+      await deleteTestimonialMutation.mutateAsync(selectedTestimonial._id);
       setIsDeleteModalOpen(false);
       setSelectedTestimonial(null);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="h-full w-full min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-brand-neon animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
